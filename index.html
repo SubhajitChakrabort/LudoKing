@@ -1,0 +1,1517 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ludo Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    a {
+      text-decoration: none;
+      font-weight: 900;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .all {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-rows: 1fr 2fr 1fr;
+      height: 100vh;
+      background-image: url('ludo.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: auto;
+    }
+
+    .board {
+      display: grid;
+      height: 100vh;
+      aspect-ratio: 21/15;
+      grid-template-columns: 3fr 15fr 3fr;
+      grid-template-rows: 3fr 9fr 3fr;
+      margin: auto;
+      background-color: cornsilk;
+    }
+
+    .gameBoard {
+      grid-row-start: 1;
+      grid-row-end: 4;
+      grid-column-start: 2;
+      grid-column-end: 3;
+      border: 0.5px solid black;
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      grid-template-rows: repeat(15, 1fr);
+      background-color: white;
+    }
+
+    .dice4 {
+      grid-row-start: 1;
+      grid-row-end: 2;
+      grid-column-start: 1;
+      grid-column-end: 2;
+    }
+
+    .dice3 {
+      grid-row-start: 1;
+      grid-row-end: 2;
+      grid-column-start: 3;
+      grid-column-end: 4;
+    }
+
+    .dice1 {
+      grid-row-start: 3;
+      grid-row-end: 4;
+      grid-column-start: 1;
+      grid-column-end: 2;
+    }
+
+    .dice2 {
+      grid-row-start: 3;
+      grid-row-end: 4;
+      grid-column-start: 3;
+      grid-column-end: 4;
+    }
+
+    .dice1,
+    .dice2,
+    .dice3,
+    .dice4 {
+      background-color: white;
+      border: 1px solid black;
+      perspective: 1600px;
+      cursor: pointer;
+      z-index: 40;
+      position: relative;
+      overflow: -moz-hidden-unscrollable;
+    }
+
+    .arrow1,
+    .arrow2,
+    .arrow3,
+    .arrow4 {
+      background-color: purple;
+      height: 80%;
+      width: 80%;
+      margin: 10%;
+      position: absolute;
+      clip-path: polygon(40% 0%, 40% 20%, 100% 20%, 100% 80%, 40% 80%, 40% 100%, 0% 50%);
+    }
+
+    .arrow1,
+    .arrow2 {
+      transform: rotateZ(-90deg);
+      top: -100%;
+      animation: landArr12 0.4s infinite;
+    }
+
+    .arrow3,
+    .arrow4 {
+      transform: rotateZ(90deg);
+      bottom: -92%;
+      animation: landArr34 0.4s infinite;
+    }
+
+    .dice1,
+    .dice4 {
+      border-right: none;
+    }
+
+    .dice2,
+    .dice3 {
+      border-left: none;
+    }
+
+    .red-home {
+      grid-row-start: 1;
+      grid-row-end: 7;
+      grid-column-start: 1;
+      grid-column-end: 7;
+      background-color: #fd0100;
+    }
+
+    .green-home {
+      grid-row-start: 1;
+      grid-row-end: 7;
+      grid-column-start: 10;
+      grid-column-end: 16;
+      background-color: #009a2a;
+    }
+
+    .yellow-home {
+      grid-row-start: 10;
+      grid-row-end: 16;
+      grid-column-start: 10;
+      grid-column-end: 16;
+      background-color: #fee800;
+    }
+
+    .blue-home {
+      grid-row-start: 10;
+      grid-row-end: 16;
+      grid-column-start: 1;
+      grid-column-end: 7;
+      background-color: #00acff;
+    }
+
+    .cell {
+      border: 0.5px solid black;
+      background-color: white;
+      position: relative;
+    }
+
+    .red-home,
+    .blue-home,
+    .green-home,
+    .yellow-home {
+      border: 0.5px solid black;
+      display: flex;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .center {
+      grid-row-start: 7;
+      grid-row-end: 10;
+      grid-column-start: 7;
+      grid-column-end: 10;
+      border: 0.5px solid black;
+      background: conic-gradient(from -45deg,
+          #009a2a 0deg,
+          #009a2a 90deg,
+          #fee800 90deg,
+          #fee800 180deg,
+          #00acff 180deg,
+          #00acff 270deg,
+          #fd0100 270deg);
+    }
+
+    .redT {
+      background-color: #fd0100;
+    }
+
+    .blueT {
+      background-color: #00acff;
+    }
+
+    .greenT {
+      background-color: #009a2a;
+    }
+
+    .yellowT {
+      background-color: #fee800;
+    }
+
+    .cont {
+      aspect-ratio: 1;
+      height: 72%;
+      margin: 14%;
+      background-color: white;
+      border-radius: 3%;
+      display: flex;
+      flex-wrap: wrap;
+      border: 1px solid black;
+    }
+
+    .redT,
+    .blueT,
+    .greenT,
+    .yellowT {
+      height: 22.8%;
+      aspect-ratio: 1;
+      margin: 13.6%;
+      display: inline-block;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .redName,
+    .blueName,
+    .greenName,
+    .yellowName {
+      position: absolute;
+      bottom: 0;
+      text-align: center;
+      width: 100%;
+      margin: 2%;
+      font-size: 3vh;
+      font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+        "Lucida Sans", Arial, sans-serif;
+    }
+
+    .token {
+      width: 78%;
+      aspect-ratio: 34/45;
+      position: absolute;
+      bottom: 50%;
+      left: 11%;
+      z-index: 10;
+      transition: transform 0.3s;
+    }
+
+    .goingHome {
+      transition: transform 0.1s;
+    }
+
+    .triangle {
+      bottom: 0;
+      left: 9.6%;
+      width: 80.8%;
+      height: 40%;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
+
+    .circle {
+      width: 100%;
+      aspect-ratio: 1;
+      clip-path: circle(50% at center);
+      top: 0;
+    }
+
+    .triangle,
+    .circle {
+      position: absolute;
+      background-color: rgb(205 201 216);
+    }
+
+    .innerCircle {
+      width: 100%;
+      aspect-ratio: 1;
+      clip-path: circle(35% at center);
+    }
+
+    .red {
+      background-color: #fd0100;
+    }
+
+    .blue {
+      background-color: #00acff;
+    }
+
+    .green {
+      background-color: #009a2a;
+    }
+
+    .yellow {
+      background-color: #fee800;
+    }
+
+    .star {
+      height: 90%;
+      margin: 5%;
+      aspect-ratio: 1;
+      clip-path: polygon(50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%);
+    }
+
+    .dice {
+      height: 80%;
+      margin: 10%;
+      aspect-ratio: 1;
+      transform-style: preserve-3d;
+      transition: 2s cubic-bezier(0, 0.06, 0, 1);
+    }
+
+    .c {
+      background-color: white;
+      clip-path: circle(30%);
+    }
+
+    .face {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
+      background-color: red;
+    }
+
+    .one {
+      transform: translateZ(-7.9vh);
+    }
+
+    .six {
+      transform: translateZ(7.9vh);
+    }
+
+    .four {
+      transform: rotateY(90deg) translateZ(7.9vh);
+    }
+
+    .three {
+      transform: rotateY(-90deg) translateZ(7.9vh);
+    }
+
+    .five {
+      transform: rotateX(90deg) translateZ(7.9vh);
+    }
+
+    .two {
+      transform: rotateX(-90deg) translateZ(7.9vh);
+    }
+
+    .popup {
+      height: 100vh;
+      width: 100vw;
+      background-color: rgba(0, 0, 0, 0.821);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: 0;
+    }
+
+    .input {
+      aspect-ratio: 3/4;
+      height: 60vh;
+      background-color: rgb(157, 186, 188);
+      border-radius: 5%;
+      border: 2px solid black;
+    }
+
+    .count {
+      height: 100%;
+      width: 100%;
+      text-align: center;
+      font-size: 5vh;
+      font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+      color: darkblue;
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+      flex-direction: column;
+    }
+
+    button {
+      width: 80%;
+      background-color: #4B0082;
+      color: aliceblue;
+      font-size: 5vh;
+      font-family: sans-serif;
+      border-radius: 10px;
+      font-weight: 800;
+      padding: 3%;
+      transition: 0.13s transform;
+      border: none;
+    }
+
+    #nxt {
+      background-color: #fe00cf;
+      color: white;
+      width: 40%;
+      font-size: 3vh;
+      transition: none;
+    }
+
+    #nxt:hover {
+      border: 2px solid rgb(0, 0, 0);
+    }
+
+    button:hover {
+      background-color: #1E1E1E;
+      transform: scale(0.98);
+    }
+
+    input {
+      height: 10%;
+      width: 80%;
+      border: none;
+      border-radius: 10px;
+      font-size: 3vh;
+      padding: 5%;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    input::placeholder {
+      color: rgba(0, 0, 0, 0.501);
+    }
+
+    .name {
+      height: 100%;
+      width: 100%;
+    }
+
+    .buttons {
+      width: 100%;
+      height: auto;
+    }
+
+    .wonOne {
+      clip-path: polygon(45% 28%, 30% 32%, 30% 22%, 55% 16%, 56% 76%, 71% 76%, 71% 85%, 30% 85%, 30% 76%, 45% 76%);
+    }
+
+    .wonTwo {
+      clip-path: polygon(42% 33%, 30% 33%, 30% 9%, 67% 9%, 67% 33%, 44% 76%, 68% 76%, 68% 87%, 28% 87%, 29% 79%, 55% 33%, 55% 19%, 42% 19%);
+    }
+
+    .wonThree {
+      clip-path: polygon(42% 36%, 29% 36%, 29% 11%, 68% 11%, 68% 41%, 57% 49%, 68% 59%, 68% 91%, 29% 91%, 29% 63%, 42% 63%, 42% 79%, 56% 79%, 56% 60%, 40% 49%, 56% 38%, 56% 22%, 42% 22%);
+    }
+
+    .wonFour {
+      clip-path: polygon(44% 8%, 58% 8%, 39% 63%, 50% 63%, 50% 39%, 63% 39%, 63% 63%, 69% 63%, 69% 75%, 63% 75%, 63% 90%, 50% 90%, 50% 75%, 23% 75%, 23% 66%);
+    }
+
+    .wonOne,
+    .wonTwo,
+    .wonThree,
+    .wonFour {
+      height: 100%;
+      width: 100%;
+      background-color: purple;
+    }
+    
+    @media (orientation: portrait) {
+      .board {
+        width: 100vw;
+        height: auto;
+        aspect-ratio: 15/21;
+        grid-template-columns: 3fr 9fr 3fr;
+        grid-template-rows: 3fr 15fr 3fr;
+      }
+
+      .gameBoard {
+        grid-row-start: 2;
+        grid-row-end: 3;
+        grid-column-start: 1;
+        grid-column-end: 4;
+      }
+
+      .dice1,
+      .dice2,
+      .dice3,
+      .dice4 {
+        border: 1px solid black;
+      }
+
+      .dice1,
+      .dice2 {
+        border-top: none;
+      }
+
+      .dice3,
+      .dice4 {
+        border-bottom: none;
+      }
+
+      .redName,
+      .blueName,
+      .greenName,
+      .yellowName {
+        font-size: 2.5vw;
+      }
+
+      .one {
+        transform: translateZ(-7.9vw);
+      }
+
+      .six {
+        transform: translateZ(7.9vw);
+      }
+
+      .four {
+        transform: rotateY(90deg) translateZ(7.9vw);
+      }
+
+      .three {
+        transform: rotateY(-90deg) translateZ(7.9vw);
+      }
+
+      .five {
+        transform: rotateX(90deg) translateZ(7.9vw);
+      }
+
+      .two {
+        transform: rotateX(-90deg) translateZ(7.9vw);
+      }
+
+      .arrow1,
+      .arrow4 {
+        transform: none;
+        right: -92%;
+        bottom: 0;
+        top: 0;
+        animation: portdArr14 0.4s infinite;
+      }
+
+      .arrow2,
+      .arrow3 {
+        transform: rotateZ(-180deg);
+        left: -92%;
+        bottom: 0;
+        top: 0;
+        animation: portdArr23 0.4s infinite;
+      }
+    }
+
+    @media (orientation: landscape) and (max-aspect-ratio: 21/15) {
+      .board {
+        width: 100vw;
+        height: auto;
+      }
+
+      .one {
+        transform: translateZ(-5.48vw);
+      }
+
+      .six {
+        transform: translateZ(5.48vw);
+      }
+
+      .four {
+        transform: rotateY(90deg) translateZ(5.48vw);
+      }
+
+      .three {
+        transform: rotateY(-90deg) translateZ(5.48vw);
+      }
+
+      .five {
+        transform: rotateX(90deg) translateZ(5.48vw);
+      }
+
+      .two {
+        transform: rotateX(-90deg) translateZ(5.48vw);
+      }
+    }
+
+    @media (orientation: portrait) and (min-aspect-ratio: 15/21) {
+      .board {
+        height: 100vh;
+        width: auto;
+      }
+
+      .one {
+        transform: translateZ(-5.48vh);
+      }
+
+      .six {
+        transform: translateZ(5.48vh);
+      }
+
+      .four {
+        transform: rotateY(90deg) translateZ(5.48vh);
+      }
+
+      .three {
+        transform: rotateY(-90deg) translateZ(5.48vh);
+      }
+
+      .five {
+        transform: rotateX(90deg) translateZ(5.48vh);
+      }
+
+      .two {
+        transform: rotateX(-90deg) translateZ(5.48vh);
+      }
+    }
+
+    @keyframes blinkred {
+
+      0%,
+      100% {
+        background-color: #fd0100;
+      }
+
+      50% {
+        background-color: rgb(135, 0, 0);
+      }
+    }
+
+    @keyframes blinkblue {
+
+      0%,
+      100% {
+        background-color: #00acff;
+      }
+
+      50% {
+        background-color: rgb(0, 88, 135);
+      }
+    }
+
+    @keyframes blinkyellow {
+
+      0%,
+      100% {
+        background-color: #fee800;
+      }
+
+      50% {
+        background-color: #877b00;
+      }
+    }
+
+    @keyframes blinkgreen {
+
+      0%,
+      100% {
+        background-color: #009a2a;
+      }
+
+      50% {
+        background-color: #002f0c;
+      }
+    }
+
+    @keyframes landArr34 {
+
+      0%,
+      100% {
+        bottom: -92%;
+      }
+
+      50% {
+        bottom: -102%;
+      }
+    }
+
+    @keyframes landArr12 {
+
+      0%,
+      100% {
+        top: -92%;
+      }
+
+      50% {
+        top: -102%;
+      }
+    }
+
+    @keyframes portdArr14 {
+
+      0%,
+      100% {
+        right: -92%;
+      }
+
+      50% {
+        right: -102%;
+      }
+    }
+
+    @keyframes portdArr23 {
+
+      0%,
+      100% {
+        left: -92%;
+      }
+
+      50% {
+        left: -102%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="all">
+    
+    <div class="popup">
+      <div class="input">
+        <div class="count">
+          Select Players!
+          <button id="2P">2 Players</button>
+          <button id="3P">3 Players</button>
+          <button id="4P">4 Players</button>
+        </div>
+      </div>
+    </div>
+    <div class="board">
+      <div class="dice1"></div>
+      <div class="dice2"></div>
+      <div class="dice3"></div>
+      <div class="dice4"></div>
+      <div class="gameBoard">
+        <div class="red-home">
+          <div class="cont">
+            <div class="redT"></div>
+            <div class="redT"></div>
+            <div class="redT"></div>
+            <div class="redT"></div>
+          </div>
+          <div class="redName"></div>
+        </div>
+        <div class="blue-home">
+          <div class="cont">
+            <div class="blueT"></div>
+            <div class="blueT"></div>
+            <div class="blueT"></div>
+            <div class="blueT"></div>
+          </div>
+          <div class="blueName"></div>
+        </div>
+        <div class="green-home">
+          <div class="cont">
+            <div class="greenT"></div>
+            <div class="greenT"></div>
+            <div class="greenT"></div>
+            <div class="greenT"></div>
+          </div>
+          <div class="greenName"></div>
+        </div>
+        <div class="yellow-home">
+          <div class="cont">
+            <div class="yellowT"></div>
+            <div class="yellowT"></div>
+            <div class="yellowT"></div>
+            <div class="yellowT"></div>
+          </div>
+          <div class="yellowName"></div>
+        </div>
+        <div class="cell" b="24" y="37" g="50" r="11"></div>
+        <div class="cell" b="25" y="38" g="51" r="12"></div>
+        <div class="cell" b="26" y="39" g="" r="13"></div>
+        <div class="cell" b="23" y="36" g="49" r="10">
+        </div>
+        <div class="cell" b="" y="" g="52" r="" style="background-color: #009A2A;"></div>
+        <div class="cell stop" b="27" y="40" g="1" r="14" style="background-color: #009A2A;"></div>
+        <div class="cell stop" b="22" y="35" g="48" r="9">
+          <div class="star green"></div>
+        </div>
+        <div class="cell" b="" y="" g="53" r="" style="background-color: #009A2A;">
+
+        </div>
+        <div class="cell" b="28" y="41" g="2" r="15">
+        </div>
+        <div class="cell" b="21" y="34" g="47" r="8"></div>
+        <div class="cell" b="" y="" g="54" r="" style="background-color: #009A2A;"></div>
+        <div class="cell" b="29" y="42" g="3" r="16"></div>
+        <div class="cell" b="20" y="33" g="46" r="7"></div>
+        <div class="cell" b="" y="" g="55" r="" style="background-color: #009A2A;"></div>
+        <div class="cell" b="30" y="43" g="4" r="17"></div>
+        <div class="cell" b="19" y="32" g="45" r="6"></div>
+        <div class="cell" b="" y="" g="56" r="" style="background-color: #009A2A;"></div>
+        <div class="cell" b="31" y="44" g="5" r="18"></div>
+        <div class="cell" b="13" y="26" g="39" r=""></div>
+        <div class="cell stop" b="14" y="27" g="40" r="1" style="background-color: #FD0100;"></div>
+        <div class="cell" b="15" y="28" g="41" r="2"></div>
+        <div class="cell" b="16" y="29" g="42" r="3"></div>
+        <div class="cell" b="17" y="30" g="43" r="4"></div>
+        <div class="cell" b="18" y="31" g="44" r="5"></div>
+        <div class="cell" b="32" y="45" g="6" r="19"></div>
+        <div class="cell" b="33" y="46" g="7" r="20"></div>
+        <div class="cell" b="34" y="47" g="8" r="21"></div>
+        <div class="cell stop" b="35" y="48" g="9" r="22">
+          <div class="star yellow"></div>
+        </div>
+        <div class="cell" b="36" y="49" g="10" r="23"></div>
+        <div class="cell" b="37" y="50" g="11" r="24"></div>
+        <div class="cell" b="12" y="25" g="38" r="51"></div>
+        <div class="cell" b="" y="" g="" r="52" style="background-color: #FD0100;"></div>
+        <div class="cell" b="" y="" g="" r="53" style="background-color: #FD0100;"></div>
+        <div class="cell" b="" y="" g="" r="54" style="background-color: #FD0100;"></div>
+        <div class="cell" b="" y="" g="" r="55" style="background-color: #FD0100;"></div>
+        <div class="cell" b="" y="" g="" r="56" style="background-color: #FD0100;"></div>
+        <div class="cell" b="" y="56" g="" r="" style="background-color: #FEE800;"></div>
+        <div class="cell" b="" y="55" g="" r="" style="background-color: #FEE800;"></div>
+        <div class="cell" b="" y="54" g="" r="" style="background-color: #FEE800;"></div>
+        <div class="cell" b="" y="53" g="" r="" style="background-color: #FEE800;"></div>
+        <div class="cell" b="" y="52" g="" r="" style="background-color: #FEE800;"></div>
+        <div class="cell" b="38" y="51" g="12" r="25"></div>
+        <div class="cell" b="11" y="24" g="37" r="50"></div>
+        <div class="cell" b="10" y="23" g="36" r="49"></div>
+        <div class="cell stop" b="9" y="22" g="35" r="48">
+          <div class="star red"></div>
+        </div>
+        <div class="cell" b="8" y="21" g="34" r="47"></div>
+        <div class="cell" b="7" y="20" g="33" r="46"></div>
+        <div class="cell" b="6" y="19" g="32" r="45"></div>
+        <div class="cell" b="44" y="5" g="18" r="31"></div>
+        <div class="cell" b="43" y="4" g="17" r="30"></div>
+        <div class="cell" b="42" y="3" g="16" r="29"></div>
+        <div class="cell" b="41" y="2" g="15" r="28"></div>
+        <div class="cell stop" b="40" y="1" g="14" r="27" style="background-color: #FEE800;"></div>
+        <div class="cell" b="39" y="" g="13" r="26"></div>
+        <div class="cell" b="5" y="18" g="31" r="44"></div>
+        <div class="cell" b="56" y="" g="" r="" style="background-color: #00ACFF;"></div>
+        <div class="cell" b="45" y="6" g="19" r="32"></div>
+        <div class="cell" b="4" y="17" g="30" r="43"></div>
+        <div class="cell" b="55" y="" g="" r="" style="background-color: #00ACFF;"></div>
+        <div class="cell" b="46" y="7" g="20" r="33"></div>
+        <div class="cell" b="3" y="16" g="29" r="42"></div>
+        <div class="cell" b="54" y="" g="" r="" style="background-color: #00ACFF;"></div>
+        <div class="cell" b="47" y="8" g="21" r="34"></div>
+        <div class="cell" b="2" y="15" g="28" r="41"></div>
+        <div class="cell" b="53" y="" g="" r="" style="background-color: #00ACFF;"></div>
+        <div class="cell stop" b="48" y="9" g="22" r="35">
+          <div class="star blue"></div>
+        </div>
+        <div class="cell stop" b="1" y="14" g="27" r="40" style="background-color: #00ACFF;"></div>
+        <div class="cell" b="52" y="" g="" r="" style="background-color: #00ACFF;"></div>
+        <div class="cell" b="49" y="10" g="23" r="36"></div>
+        <div class="cell" b="" y="13" g="26" r="39"></div>
+        <div class="cell" b="51" y="12" g="25" r="38"></div>
+        <div class="cell" b="50" y="11" g="24" r="37"></div>
+        <div class="center"></div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  class Game {
+    constructor() {
+      this.states = {
+        lockDice: false,
+        playerCount: 0,
+        currentPlayer: 0,
+        diceResult: undefined,
+        consecutiveSixes: [],
+        isDiceRolling: false,
+        activeToken: false,
+        killed: false,
+        winOrder: [],
+        reached: false,
+        movingToken : false
+      };
+
+      this.players = [
+        this.createPlayer("player 1", "blue", ".blueT", ".dice1"),
+        this.createPlayer("player 2", "yellow", ".yellowT", ".dice2"),
+        this.createPlayer("player 3", "green", ".greenT", ".dice3"),
+        this.createPlayer("player 4", "red", ".redT", ".dice4")
+      ];
+
+      // Initialize background music
+      this.backgroundMusic = null;
+
+      this.init();
+    }
+
+    createPlayer(name, color, homeSelector, diceSelector) {
+      return {
+        name,
+        color,
+        homeDivs: document.querySelectorAll(homeSelector),
+        diceDiv: undefined,
+        playing: false,
+        diceLoad: document.querySelector(diceSelector),
+        tokens: undefined
+      };
+    }
+
+    init() {
+      this.popup();
+    }
+
+    buttonAudio() {
+      const audio = new Audio("data:audio/mpeg;base64,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")
+      audio.play();
+    }
+
+    getCenterOfDiv(div) {
+      const rect = div.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      return { x: centerX, y: centerY };
+    }
+
+    createToken(color) {
+      const elem = document.createElement("div");
+      elem.className = "token";
+      elem.innerHTML = ['circle', 'triangle', `${color} innerCircle`].map(c => `<div class="${c}"></div>`).join('');
+      return elem;
+    }
+
+    getColorToken(token) {
+      return token.children[2].classList[0];
+    }
+
+    startGame() {
+      this.setupTokenPositionObservers();
+      this.setupCellObservers();
+      this.gameLogic();
+    }
+
+    setupTokenPositionObservers() {
+      const positions = {
+        1: ["11%"],
+        2: ["-4%", "26%"],
+        3: ["-19%", "11%", "41%"],
+        4: ["-24%", "-0.66%", "22.68%", "46.02%"],
+      };
+
+      document.querySelectorAll(".stop").forEach((stop) => {
+        const observerCallback = () => {
+          const uniqueTokens = new Set();
+          const uniqueElements = [];
+          stop.querySelectorAll(".token").forEach((token) => {
+            const key = this.getColorToken(token);
+            if (!uniqueTokens.has(key)) {
+              uniqueTokens.add(key);
+              uniqueElements.push(token);
+            }
+          });
+
+          if (uniqueElements.length >= 1) {
+            uniqueElements.forEach((element, index) => {
+              stop.querySelectorAll(`.token .${this.getColorToken(element)}`)
+                .forEach((t) => {
+                  const parent = t.parentElement;
+                  if (!parent.classList[1]) {
+                    parent.style.left = positions[uniqueElements.length][index];
+                    parent.style.zIndex = 10 + index;
+                  } else {
+                    parent.style.zIndex = 14;
+                  }
+                });
+            });
+          }
+
+          if (uniqueElements.length == 1) {
+            if (stop.querySelectorAll(".token").length >= 1) {
+              positions[stop.querySelectorAll(".token").length].forEach((position, j) => {
+                stop.querySelectorAll(".token")[j].style.left = position;
+              });
+            }
+          }
+        };
+
+        observerCallback();
+        const observer = new MutationObserver(observerCallback);
+        observer.observe(stop, { childList: true });
+      });
+    }
+
+    setupCellObservers() {
+      const positions = {
+        1: ["11%"],
+        2: ["-4%", "26%"],
+        3: ["-19%", "11%", "41%"],
+        4: ["-24%", "-0.66%", "22.68%", "46.02%"],
+      };
+
+      document.querySelectorAll(".cell:not(.stop)").forEach((cell) => {
+        const observerCallback = () => {
+          const x = cell.childElementCount;
+          if (x == 2 && !cell.children[1].classList[1] &&
+            cell.children[0].children[2].classList[0] != cell.children[1].children[2].classList[0]) {
+            this.toHome(cell.children[0]);
+            this.states.killed = true;
+          } else if (x >= 1) {
+            positions[x].forEach((position, i) => {
+              cell.children[i].style.left = position;
+            });
+          }
+        };
+
+        observerCallback();
+        const observer = new MutationObserver(observerCallback);
+        observer.observe(cell, { childList: true });
+      });
+    }
+
+    setUp(i) {
+      const diceFaces = {
+        1: [4],
+        2: [0, 8],
+        3: [0, 4, 8],
+        4: [0, 2, 6, 8],
+        5: [0, 2, 4, 6, 8],
+        6: [0, 2, 3, 5, 6, 8],
+      };
+
+      const diceHTML = Object.entries(diceFaces)
+        .map(([num, positions]) => `
+        <div class="face ${["", "one", "two", "three", "four", "five", "six"][num]}">
+          ${Array.from({ length: 9 }, (_, i) =>
+          positions.includes(i) ? '<div class="c"></div>' : '<div class="empty"></div>'
+        ).join("")}
+        </div>`
+        )
+        .join("");
+
+      document.querySelector(`.dice${i + 1}`).innerHTML = `<div class="dice">${diceHTML}</div>`;
+
+      for (let j = 0; j < 4; j++) {
+        this.players[i].homeDivs[j].appendChild(this.createToken(this.players[i].color));
+      }
+
+      this.players[i].tokens = document.querySelector(`.${this.players[i].color}-home`).querySelectorAll(".token");
+      this.players[i].diceDiv = document.querySelector(`.dice${i + 1}`).children[0];
+    }
+
+    handleName() {
+      let x = this.states.playerCount;
+      const inputs = document.querySelectorAll("input");
+
+      const assignName = (i, name) => {
+        this.players[i].name = name;
+        document.querySelector(`.${this.players[i].color}Name`).innerHTML = name;
+        this.setUp(i);
+        this.players[i].playing = true;
+        x--;
+      };
+
+      document.querySelectorAll("#nxt")[1].addEventListener("click", () => {
+        this.buttonAudio();
+        inputs.forEach((input, i) => {
+          if (x > 0 && input.value) assignName(i, input.value);
+        });
+        inputs.forEach((input, i) => {
+          if (x > 0 && !input.value) assignName(i, `player ${i + 1}`);
+        });
+
+        setTimeout(() => {
+          document.querySelector(".popup").remove();
+          this.players = this.players.filter((p) => p.playing);
+          this.startGame();
+        }, 250);
+      });
+
+      document.querySelectorAll("#nxt")[0].addEventListener("click", () => {
+        this.buttonAudio();
+        document.querySelector(".input").innerHTML = `
+        <div class="count">Select Players!
+          <button id="2P">2 Players</button>
+          <button id="3P">3 Players</button>
+          <button id="4P">4 Players</button>
+        </div>`;
+        this.popup();
+      });
+    }
+
+    popup() {
+      document.querySelectorAll("button").forEach(button => {
+        button.addEventListener("click", () => {
+          this.buttonAudio();
+          setTimeout(() => {
+            this.states.playerCount = parseInt(button.id[0]);
+            document.querySelector(".count").remove();
+            document.querySelector(".input").innerHTML = `
+            <div class="count">
+              PLAYER NAMES
+              ${["blue", "yellow", "green", "red"].map(color =>
+              `<input type="text" class="${color}" placeholder="${color.charAt(0).toUpperCase() + color.slice(1)} Player Name">`
+            ).join('')}
+              <div class="buttons">
+                <button id="nxt">BACK</button>
+                <button id="nxt">START</button>
+              </div>
+            </div>`;
+            this.handleName();
+          }, 100);
+        });
+      });
+    }
+
+    nextTurn() {
+      let attempts = 0;
+      do {
+        this.states.currentPlayer = (this.states.currentPlayer + 1) % this.players.length;
+        attempts++;
+        if (attempts > this.players.length) {
+          console.log("No active players!");
+          break;
+        }
+      } while (!this.players[this.states.currentPlayer].playing);
+    }
+
+    getDiceResult(X, Y) {
+      const lookupTable = {
+        "0,0": 6,
+        "0,0.25": 3,
+        "0,0.5": 1,
+        "0,0.75": 4,
+        "0,-0.25": 4,
+        "0,-0.5": 1,
+        "0,-0.75": 3,
+
+        "0.25,0": 2,
+        "0.25,0.25": 2,
+        "0.25,0.5": 2,
+        "0.25,0.75": 2,
+        "0.25,-0.25": 2,
+        "0.25,-0.5": 2,
+        "0.25,-0.75": 2,
+
+        "-0.25,0": 5,
+        "-0.25,0.25": 5,
+        "-0.25,0.5": 5,
+        "-0.25,0.75": 5,
+        "-0.25,-0.25": 5,
+        "-0.25,-0.5": 5,
+        "-0.25,-0.75": 5,
+
+        "-0.5,0": 1,
+        "-0.5,0.25": 4,
+        "-0.5,0.5": 6,
+        "-0.5,0.75": 3,
+        "-0.5,-0.25": 3,
+        "-0.5,-0.5": 6,
+        "-0.5,-0.75": 4,
+
+        "0.5,0": 1,
+        "0.5,0.25": 4,
+        "0.5,0.5": 6,
+        "0.5,0.75": 3,
+        "0.5,-0.25": 3,
+        "0.5,-0.5": 6,
+        "0.5,-0.75": 4,
+
+        "0.75,0": 5,
+        "0.75,0.25": 5,
+        "0.75,0.5": 5,
+        "0.75,0.75": 5,
+        "0.75,-0.25": 5,
+        "0.75,-0.5": 5,
+        "0.75,-0.75": 5,
+
+        "-0.75,0": 2,
+        "-0.75,0.25": 2,
+        "-0.75,0.5": 2,
+        "-0.75,0.75": 2,
+        "-0.75,-0.25": 2,
+        "-0.75,-0.5": 2,
+        "-0.75,-0.75": 2,
+      };
+
+      const key = `${X},${Y}`;
+      return lookupTable[key];
+    }
+
+    blinkHome(i) {
+      this.players.forEach((player) => {
+        document.querySelector(`.${player.color}-home`).removeAttribute("style");
+      });
+
+      if (i !== "stop") {
+        document.querySelector(`.${this.players[i].color}-home`).style =
+          `animation: blink${this.players[i].color} 1s infinite ease-in-out;`;
+      }
+    }
+
+    gameLogic() {
+      this.arrow(this.states.currentPlayer);
+
+      this.players.forEach((player, i) => {
+        player.diceDiv.addEventListener("click", () => {
+          if (!this.states.isDiceRolling && this.states.currentPlayer == i && !this.states.lockDice) {
+            this.arrow("remove");
+            this.rollDice(i).then(() => {
+              this.states.lockDice = true;
+              if (this.states.diceResult != 6 &&
+                document.querySelector(`.${player.color}-home`).querySelectorAll(".token").length ==
+                document.querySelectorAll(`.${player.color}.innerCircle`).length) {
+                this.nextTurn();
+                this.arrow(this.states.currentPlayer);
+                this.states.lockDice = false;
+              } else {
+                this.blinkHome(this.states.currentPlayer);
+                this.states.activeToken = true;
+                this.states.movingToken = false;
+              }
+            });
+          }
+        });
+
+        player.tokens.forEach((token) => {
+          token.addEventListener("click", () => {
+            if (this.states.activeToken && this.getColorToken(token) == this.players[this.states.currentPlayer].color && !this.states.movingToken) {
+              if (this.states.diceResult == 6 && token.parentElement.parentElement.classList[0] == "cont") {
+                this.toGround(token).then(() => {
+                  this.states.activeToken = false;
+                  this.states.lockDice = false;
+                  this.arrow(this.states.currentPlayer);
+                  this.blinkHome("stop");
+                });
+              } else if (token.parentElement.classList[0] == "cell") {
+                this.move(token, this.states.diceResult).then(() => {
+                  if (this.states.diceResult != 6 && !this.states.killed) {
+                    this.states.reached ? this.states.reached = false : this.nextTurn();
+                  } else if (this.states.killed) {
+                    this.states.killed = false;
+                  }
+                  this.states.activeToken = false;
+                  this.states.lockDice = false;
+                  this.arrow(this.states.currentPlayer);
+                  this.blinkHome("stop");
+                });
+              }
+            }
+          });
+        });
+      });
+    }
+
+    rollDice(i) {
+      return new Promise((resolve) => {
+        this.states.isDiceRolling = true;
+        
+        // Play dice sound
+        const diceAudio = new Audio('dice.mp3');
+        diceAudio.play().catch(error => {
+          console.log('Could not play dice sound:', error);
+        });
+        
+        const rotX = Math.trunc(Math.random() * 100 - 50);
+        const rotY = Math.trunc(Math.random() * 100 - 50);
+        let turnX = rotX / 4 - Math.trunc(rotX / 4);
+        let turnY = rotY / 4 - Math.trunc(rotY / 4);
+
+        this.players[i].diceDiv.style =
+          `transform: rotateX(${90 * rotX}deg) rotateY(${90 * rotY}deg);`;
+
+        setTimeout(() => {
+          this.states.diceResult = this.getDiceResult(turnX, turnY);
+          resolve(this.states.diceResult);
+          this.states.consecutiveSixes.push(this.states.diceResult);
+          this.states.isDiceRolling = false;
+        }, 2000);
+      });
+    }
+
+    async toHome(token) {
+      token.classList.add("goingHome");
+      this.states.movingToken = true;
+      const pos = { b: 1, y: 2, g: 3, r: 4 };
+      const color = this.getColorToken(token);
+      const k = parseInt(token.parentElement.attributes[pos[color[0]]].nodeValue);
+
+      const oneStep = (token) => {
+        return new Promise((resolve) => {
+          const j = parseInt(token.parentElement.attributes[pos[color[0]]].nodeValue);
+          const targetCell = this.getCellByColor(color[0], j - 1);
+          const initPos = this.getCenterOfDiv(token.parentElement);
+          const finPos = this.getCenterOfDiv(targetCell);
+
+          token.style.transform = `translate(${finPos.x - initPos.x}px, ${finPos.y - initPos.y}px)`;
+
+          setTimeout(() => {
+            targetCell.appendChild(token);
+            token.removeAttribute("style");
+            resolve();
+          }, 100);
+        });
+      };
+
+      for (let i = k; i > 1; i--) {
+        await oneStep(token);
+      }
+
+      const targetSlots = document.querySelectorAll(`.${color}T`);
+      for (let i = 0; i < 4; i++) {
+        if (targetSlots[i].childElementCount === 0) {
+          const final = this.getCenterOfDiv(targetSlots[i]);
+          const initial = this.getCenterOfDiv(token.parentElement);
+          token.style.transform = `translate(${final.x - initial.x}px, ${final.y - initial.y}px)`;
+
+          setTimeout(() => {
+            token.removeAttribute("style");
+            targetSlots[i].appendChild(token);
+            
+          }, 100);
+          break;
+        }
+      }
+    }
+
+    getCellByColor(color, value) {
+      return document.querySelector(`.cell[${color}="${value}"]`);
+    }
+
+    async move(token, step) {
+      const pos = { b: 1, y: 2, g: 3, r: 4 };
+      const color = this.getColorToken(token)[0];
+      let f = parseInt(token.parentElement.attributes[pos[color]].nodeValue) + step;
+      const finalCell = this.getCellByColor(color, f);
+
+      if (f > 57 || (finalCell?.querySelectorAll(".token").length > 1 &&
+        color !== this.getColorToken(finalCell.children[0]) &&
+        finalCell.classList[1] !== "stop")) {
+        return;
+      }
+
+      token.classList.add("moving");
+      this.states.movingToken = true;
+
+      for (let i = 0; i < step; i++) {
+        // Play ludo sound for each step
+        const ludoAudio = new Audio('ludo.mp3');
+        ludoAudio.play().catch(error => {
+          console.log('Could not play ludo sound:', error);
+        });
+        
+        const parent = token.parentElement;
+        const targetCell = this.getCellByColor(color, parseInt(parent.attributes[pos[color]].nodeValue) + 1);
+
+        if (!targetCell) {
+          token.remove();
+          this.checkWin(this.getColorToken(token));
+          return;
+        }
+
+        const { x, y } = this.getCenterOfDiv(targetCell);
+        const { x: initX, y: initY } = this.getCenterOfDiv(parent);
+        token.style.transform = `translate(${x - initX}px, ${y - initY}px)`;
+
+        await new Promise((resolve) => setTimeout(() => {
+          targetCell.appendChild(token);
+          token.removeAttribute("style");
+          resolve();
+        }, 300));
+      }
+
+      token.classList.remove("moving");
+      finalCell.appendChild(token);
+      
+      await new Promise((resolve) => {
+        setTimeout(() => resolve(), 200);
+      });
+    }
+
+    toGround(token) {
+      return new Promise((resolve) => {
+        if (token.parentElement.parentElement.classList[0] == "cont") {
+          token.classList.add("moving");
+          this.states.movingToken = true;
+          
+          // Play ludo sound once for movement from home to ground
+          const ludoAudio = new Audio('ludo.mp3');
+          ludoAudio.play().catch(error => {
+            console.log('Could not play ludo sound:', error);
+          });
+          
+          const final = this.getCenterOfDiv(this.getCellByColor(this.getColorToken(token)[0], 1));
+          const initial = this.getCenterOfDiv(token.parentElement);
+
+          token.style.transform = `translate(${final.x - initial.x}px, ${final.y - initial.y}px)`;
+
+          setTimeout(() => {
+            token.removeAttribute("style");
+            this.getCellByColor(this.getColorToken(token)[0], 1).appendChild(token);
+            token.classList.remove(token.classList[1]);
+            
+            resolve();
+          }, 300);
+        }
+      });
+    }
+
+    arrow(i) {
+      for (let j = 1; j <= 4; j++) {
+        document.querySelector(`.arrow${j}`)?.remove();
+      }
+
+      if (i !== "remove") {
+        const n = parseInt(this.players[i].diceDiv.parentElement.classList[0][4]);
+        const arrowElem = document.createElement("div");
+        arrowElem.className = `arrow${n}`;
+        document.querySelector(`.dice${n}`).appendChild(arrowElem);
+      }
+    }
+
+    checkWin(color) {
+      if (document.querySelectorAll(`.token .${color}`).length == 0) {
+        const num = ["One", "Two", "Three", "Four"];
+        this.states.winOrder.push(color);
+        document.querySelector(`.${color}-home .cont`).innerHTML = "";
+        const elem = document.createElement("div");
+        elem.className = `won${num[this.states.winOrder.length - 1]}`;
+        document.querySelector(`.${color}-home .cont`).appendChild(elem);
+        this.blinkHome("stop");
+
+        this.players.find(player => player.color === color).playing = false;
+
+        if (this.states.winOrder.length == this.states.playerCount - 1) {
+          setTimeout(() => {
+            const lastColor = this.players[this.states.currentPlayer].color;
+            this.states.winOrder.push(lastColor);
+            document.querySelector(`.${lastColor}-home .cont`).innerHTML = "";
+            const elem = document.createElement("div");
+            elem.className = `won${num[this.states.winOrder.length - 1]}`;
+            document.querySelector(`.${lastColor}-home .cont`).appendChild(elem);
+            this.blinkHome("stop");
+            this.players[this.states.currentPlayer].playing = false;
+            this.arrow("remove");
+            
+            // Stop background music when game ends
+            this.stopBackgroundMusic();
+          }, 200);
+        }
+      }
+      else {
+        this.states.reached = true;
+      }
+    }
+
+
+
+    startGame() {
+      // Start background music when game begins
+      this.startBackgroundMusic();
+      
+      this.setupCellObservers();
+      this.gameLogic();
+    }
+
+    startBackgroundMusic() {
+      this.backgroundMusic = new Audio('backsound.mp3');
+      this.backgroundMusic.loop = true;
+      this.backgroundMusic.volume = 0.5; // Set volume to 50%
+      this.backgroundMusic.play().catch(error => {
+        console.log('Could not play background music:', error);
+      });
+    }
+
+    stopBackgroundMusic() {
+      if (this.backgroundMusic) {
+        this.backgroundMusic.pause();
+        this.backgroundMusic.currentTime = 0;
+        this.backgroundMusic = null;
+      }
+    }
+
+    showTokens(token) {
+      if (token != "none") {
+        const Elem = document.createElement("div");
+        Elem.setAttribute("class", "turn");
+        token.appendChild(Elem)
+      } else {
+        document.querySelectorAll(".token").forEach((token) => {
+          token.querySelector(".turn")?.remove()
+        })
+      }
+    }
+  }
+  const game = new Game();
+</script>
+
+</html>
