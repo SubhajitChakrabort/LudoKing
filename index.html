@@ -1294,7 +1294,7 @@
           resolve(this.states.diceResult);
           this.states.consecutiveSixes.push(this.states.diceResult);
           this.states.isDiceRolling = false;
-        }, 2000);
+        }, 500);
       });
     }
 
@@ -1386,14 +1386,14 @@
           targetCell.appendChild(token);
           token.removeAttribute("style");
           resolve();
-        }, 300));
+        }, 150));
       }
 
       token.classList.remove("moving");
       finalCell.appendChild(token);
       
       await new Promise((resolve) => {
-        setTimeout(() => resolve(), 200);
+        setTimeout(() => resolve(), 50);
       });
     }
 
