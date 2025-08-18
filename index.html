@@ -264,7 +264,11 @@
       font-size: 3vh;
       font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
         "Lucida Sans", Arial, sans-serif;
-      text-transform: capitalize;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
     }
 
     .token {
@@ -1270,7 +1274,9 @@
 
       const assignName = (i, name) => {
         this.players[i].name = name;
-        document.querySelector(`.${this.players[i].color}Name`).innerHTML = name;
+        // Show at most 10 characters in UI, keep full name in memory
+        const displayName = name.length > 10 ? name.slice(0, 10) + '...' : name;
+        document.querySelector(`.${this.players[i].color}Name`).innerHTML = displayName;
         this.setUp(i);
         this.players[i].playing = true;
         x--;
