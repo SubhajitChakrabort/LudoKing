@@ -264,6 +264,7 @@
       font-size: 3vh;
       font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
         "Lucida Sans", Arial, sans-serif;
+      text-transform: capitalize;
     }
 
     .token {
@@ -1089,37 +1090,53 @@
 
       document.querySelectorAll(".stop").forEach((stop) => {
         const observerCallback = () => {
-          const uniqueTokens = new Set();
-          const uniqueElements = [];
-          stop.querySelectorAll(".token").forEach((token) => {
-            const key = this.getColorToken(token);
-            if (!uniqueTokens.has(key)) {
-              uniqueTokens.add(key);
-              uniqueElements.push(token);
-            }
-          });
-
-          if (uniqueElements.length >= 1) {
-            uniqueElements.forEach((element, index) => {
-              stop.querySelectorAll(`.token .${this.getColorToken(element)}`)
-                .forEach((t) => {
-                  const parent = t.parentElement;
-                  if (!parent.classList[1]) {
-                    parent.style.left = positions[uniqueElements.length][index];
-                    parent.style.zIndex = 10 + index;
-                  } else {
-                    parent.style.zIndex = 14;
-                  }
-                });
+          const allTokens = Array.from(stop.querySelectorAll(".token"));
+          
+          if (allTokens.length > 1) {
+            // Multiple tokens - create horizontal row layout for better visibility
+            allTokens.forEach((token, index) => {
+              let leftOffset, topOffset;
+              
+              if (allTokens.length === 2) {
+                // Side by side layout
+                const positions = [-12, 12]; // Left and right
+                leftOffset = positions[index];
+                topOffset = 0;
+              } else if (allTokens.length === 3) {
+                // Three in a row
+                const positions = [-16, 0, 16]; // Left, center, right
+                leftOffset = positions[index];
+                topOffset = 0;
+              } else if (allTokens.length >= 4) {
+                // Four in a 2x2 grid but more spread out
+                const positions = [
+                  {top: -10, left: -10},   // Top-left
+                  {top: -10, left: 10},    // Top-right
+                  {top: 10, left: -10},    // Bottom-left
+                  {top: 10, left: 10}      // Bottom-right
+                ];
+                const pos = positions[index] || positions[3];
+                topOffset = pos.top;
+                leftOffset = pos.left;
+              }
+              
+              token.style.position = "absolute";
+              token.style.left = `calc(50% + ${leftOffset}px)`;
+              token.style.top = `calc(50% + ${topOffset}px)`;
+              token.style.zIndex = 10 + index;
+              token.style.transform = "translate(-50%, -50%)";
+              token.style.pointerEvents = "auto";
+              token.style.cursor = "pointer";
             });
-          }
-
-          if (uniqueElements.length == 1) {
-            if (stop.querySelectorAll(".token").length >= 1) {
-              positions[stop.querySelectorAll(".token").length].forEach((position, j) => {
-                stop.querySelectorAll(".token")[j].style.left = position;
-              });
-            }
+          } else if (allTokens.length === 1) {
+            // Single token - center it
+            const token = allTokens[0];
+            token.style.position = "absolute";
+            token.style.left = "50%";
+            token.style.top = "50%";
+            token.style.zIndex = 10;
+            token.style.transform = "translate(-50%, -50%)";
+            token.style.pointerEvents = "auto";
           }
         };
 
