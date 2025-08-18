@@ -1088,61 +1088,76 @@
         4: ["-24%", "-0.66%", "22.68%", "46.02%"],
       };
 
-      document.querySelectorAll(".stop").forEach((stop) => {
+      // Apply to ALL cells including star boxes
+      document.querySelectorAll(".cell").forEach((cell) => {
         const observerCallback = () => {
-          const allTokens = Array.from(stop.querySelectorAll(".token"));
+          const allTokens = Array.from(cell.querySelectorAll(".token"));
           
-          if (allTokens.length > 1) {
-            // Multiple tokens - create horizontal row layout for better visibility
+          if (allTokens.length >= 2) {
+            // Stacked overlapping layout - tokens stack on top of each other
             allTokens.forEach((token, index) => {
-              let leftOffset, topOffset;
+              // All tokens start at center but offset slightly
+              const offsetX = index * 8; // Small horizontal offset
+              const offsetY = index * 6; // Small vertical offset
               
-              if (allTokens.length === 2) {
-                // Side by side layout
-                const positions = [-12, 12]; // Left and right
-                leftOffset = positions[index];
-                topOffset = 0;
-              } else if (allTokens.length === 3) {
-                // Three in a row
-                const positions = [-16, 0, 16]; // Left, center, right
-                leftOffset = positions[index];
-                topOffset = 0;
-              } else if (allTokens.length >= 4) {
-                // Four in a 2x2 grid but more spread out
-                const positions = [
-                  {top: -10, left: -10},   // Top-left
-                  {top: -10, left: 10},    // Top-right
-                  {top: 10, left: -10},    // Bottom-left
-                  {top: 10, left: 10}      // Bottom-right
-                ];
-                const pos = positions[index] || positions[3];
-                topOffset = pos.top;
-                leftOffset = pos.left;
-              }
+              // Apply stacked positioning
+              token.style.cssText = `
+                position: absolute !important;
+                left: calc(50% + ${offsetX}px) !important;
+                top: calc(50% + ${offsetY}px) !important;
+                transform: translate(-50%, -50%) !important;
+                z-index: ${40 + index} !important;
+                pointer-events: auto !important;
+                cursor: pointer !important;
+                width: 45% !important;
+                height: auto !important;
+                transition: all 0.2s ease !important;
+              `;
               
-              token.style.position = "absolute";
-              token.style.left = `calc(50% + ${leftOffset}px)`;
-              token.style.top = `calc(50% + ${topOffset}px)`;
-              token.style.zIndex = 10 + index;
-              token.style.transform = "translate(-50%, -50%)";
-              token.style.pointerEvents = "auto";
-              token.style.cursor = "pointer";
+              // Add hover effect to expand token
+              token.addEventListener('mouseenter', function() {
+                this.style.cssText += `
+                  width: 70% !important;
+                  z-index: ${60 + index} !important;
+                  transform: translate(-50%, -50%) scale(1.1) !important;
+                `;
+              });
+              
+              token.addEventListener('mouseleave', function() {
+                this.style.cssText = `
+                  position: absolute !important;
+                  left: calc(50% + ${offsetX}px) !important;
+                  top: calc(50% + ${offsetY}px) !important;
+                  transform: translate(-50%, -50%) !important;
+                  z-index: ${40 + index} !important;
+                  pointer-events: auto !important;
+                  cursor: pointer !important;
+                  width: 45% !important;
+                  height: auto !important;
+                  transition: all 0.2s ease !important;
+                `;
+              });
             });
           } else if (allTokens.length === 1) {
-            // Single token - center it
+            // Single token - center
             const token = allTokens[0];
-            token.style.position = "absolute";
-            token.style.left = "50%";
-            token.style.top = "50%";
-            token.style.zIndex = 10;
-            token.style.transform = "translate(-50%, -50%)";
-            token.style.pointerEvents = "auto";
+            token.style.cssText = `
+              position: absolute !important;
+              left: 50% !important;
+              top: 50% !important;
+              transform: translate(-50%, -50%) !important;
+              z-index: 40 !important;
+              pointer-events: auto !important;
+              cursor: pointer !important;
+              width: 78% !important;
+              height: auto !important;
+            `;
           }
         };
 
         observerCallback();
         const observer = new MutationObserver(observerCallback);
-        observer.observe(stop, { childList: true });
+        observer.observe(cell, { childList: true });
       });
     }
 
@@ -1162,9 +1177,54 @@
             this.toHome(cell.children[0]);
             this.states.killed = true;
           } else if (x >= 1) {
-            positions[x].forEach((position, i) => {
-              cell.children[i].style.left = position;
-            });
+            // Apply stacking logic for all cells (star and non-star)
+            const allTokens = Array.from(cell.children);
+            
+            if (allTokens.length >= 2) {
+              // Check if tokens are same color or different colors
+              const colors = allTokens.map(token => this.getColorToken(token)[0]);
+              const uniqueColors = [...new Set(colors)];
+              
+              allTokens.forEach((token, index) => {
+                let leftOffset = 0;
+                let topOffset = 0;
+                
+                if (allTokens.length === 2) {
+                  // Side by side: left and right
+                  leftOffset = index === 0 ? -15 : 15;
+                  topOffset = 0;
+                } else if (allTokens.length === 3) {
+                  // Triangle layout
+                  const positions = [
+                    {left: 0, top: -12},    // Top center
+                    {left: -15, top: 8},    // Bottom left
+                    {left: 15, top: 8}      // Bottom right
+                  ];
+                  leftOffset = positions[index].left;
+                  topOffset = positions[index].top;
+                } else {
+                  // 4 or more tokens: 2x2 grid
+                  const row = Math.floor(index / 2);
+                  const col = index % 2;
+                  leftOffset = col === 0 ? -12 : 12;
+                  topOffset = row === 0 ? -8 : 8;
+                }
+                
+                // Apply positioning
+                token.style.position = "absolute";
+                token.style.left = `calc(50% + ${leftOffset}px)`;
+                token.style.top = `calc(50% + ${topOffset}px)`;
+                token.style.zIndex = 15 + index;
+                token.style.transform = "translate(-50%, -50%)";
+                token.style.pointerEvents = "auto";
+                token.style.cursor = "pointer";
+              });
+            } else {
+              // Single token - use original positioning
+              positions[x].forEach((position, i) => {
+                cell.children[i].style.left = position;
+              });
+            }
           }
         };
 
