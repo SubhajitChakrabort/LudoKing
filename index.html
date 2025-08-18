@@ -1093,55 +1093,65 @@
         4: ["-24%", "-0.66%", "22.68%", "46.02%"],
       };
 
-      // Apply to ALL cells including star boxes
-      document.querySelectorAll(".cell").forEach((cell) => {
+      // Apply only to star (safe) cells to avoid conflicts with normal cell logic
+      document.querySelectorAll(".cell.stop").forEach((cell) => {
         const observerCallback = () => {
           const allTokens = Array.from(cell.querySelectorAll(".token"));
           
           if (allTokens.length >= 2) {
-            // Stacked overlapping layout - tokens stack on top of each other
+            // Compact visible layout. Star boxes (.stop) and normal cells share positioning logic,
+            // but star boxes keep tokens smaller and neatly arranged so all are visible.
+            const isStar = cell.classList.contains('stop');
+            
             allTokens.forEach((token, index) => {
-              // All tokens start at center but offset slightly
-              const offsetX = index * 8; // Small horizontal offset
-              const offsetY = index * 6; // Small vertical offset
-              
-              // Apply stacked positioning
-              token.style.cssText = `
-                position: absolute !important;
-                left: calc(50% + ${offsetX}px) !important;
-                top: calc(50% + ${offsetY}px) !important;
-                transform: translate(-50%, -50%) !important;
-                z-index: ${40 + index} !important;
-                pointer-events: auto !important;
-                cursor: pointer !important;
-                width: 45% !important;
-                height: auto !important;
-                transition: all 0.2s ease !important;
-              `;
-              
-              // Add hover effect to expand token
-              token.addEventListener('mouseenter', function() {
-                this.style.cssText += `
-                  width: 70% !important;
-                  z-index: ${60 + index} !important;
-                  transform: translate(-50%, -50%) scale(1.1) !important;
-                `;
-              });
-              
-              token.addEventListener('mouseleave', function() {
-                this.style.cssText = `
-                  position: absolute !important;
-                  left: calc(50% + ${offsetX}px) !important;
-                  top: calc(50% + ${offsetY}px) !important;
-                  transform: translate(-50%, -50%) !important;
-                  z-index: ${40 + index} !important;
-                  pointer-events: auto !important;
-                  cursor: pointer !important;
-                  width: 45% !important;
-                  height: auto !important;
-                  transition: all 0.2s ease !important;
-                `;
-              });
+              // Choose offsets by token count
+              let leftOffset = 0;
+              let topOffset = 0;
+              if (allTokens.length === 2) {
+                leftOffset = index === 0 ? -14 : 14;
+                topOffset = 0;
+              } else if (allTokens.length === 3) {
+                const tri = [
+                  { left: 0, top: -12 },
+                  { left: -16, top: 8 },
+                  { left: 16, top: 8 },
+                ];
+                leftOffset = tri[index].left; topOffset = tri[index].top;
+              } else {
+                // 4 or more -> 2x2 grid, additional ones stack with slight extra offset
+                const row = Math.floor(index / 2);
+                const col = index % 2;
+                leftOffset = col === 0 ? -12 : 12;
+                topOffset = row === 0 ? -8 : 8;
+                if (index > 3) { leftOffset += (index - 3) * 2; topOffset += (index - 3) * 2; }
+              }
+
+              const baseWidth = isStar ? 42 : 48; // smaller in star box
+              token.style.position = 'absolute';
+              token.style.left = `calc(50% + ${leftOffset}px)`;
+              token.style.top = `calc(50% + ${topOffset}px)`;
+              token.style.transform = 'translate(-50%, -50%)';
+              token.style.zIndex = String(40 + index);
+              token.style.pointerEvents = 'auto';
+              token.style.cursor = 'pointer';
+              token.style.width = baseWidth + '%';
+              token.style.height = 'auto';
+              token.style.transition = 'all 0.2s ease';
+
+              // Bind hover once to avoid duplicate listeners on MutationObserver re-runs
+              if (!token.dataset.hoverBound) {
+                token.addEventListener('mouseenter', function() {
+                  this.style.width = Math.min(baseWidth + 26, 78) + '%';
+                  this.style.transform = 'translate(-50%, -50%) scale(1.06)';
+                  this.style.zIndex = String(80 + index);
+                });
+                token.addEventListener('mouseleave', function() {
+                  this.style.width = baseWidth + '%';
+                  this.style.transform = 'translate(-50%, -50%)';
+                  this.style.zIndex = String(40 + index);
+                });
+                token.dataset.hoverBound = '1';
+              }
             });
           } else if (allTokens.length === 1) {
             // Single token - center
