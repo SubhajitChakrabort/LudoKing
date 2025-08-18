@@ -1028,9 +1028,9 @@
 
       this.players = [
         this.createPlayer("player 1", "blue", ".blueT", ".dice1"),
-        this.createPlayer("player 2", "yellow", ".yellowT", ".dice2"),
-        this.createPlayer("player 3", "green", ".greenT", ".dice3"),
-        this.createPlayer("player 4", "red", ".redT", ".dice4")
+        this.createPlayer("player 2", "green", ".greenT", ".dice3"),
+        this.createPlayer("player 3", "red", ".redT", ".dice4"),
+        this.createPlayer("player 4", "yellow", ".yellowT", ".dice2")
       ];
 
       // Initialize background music
@@ -1258,14 +1258,15 @@
         )
         .join("");
 
-      document.querySelector(`.dice${i + 1}`).innerHTML = `<div class="dice">${diceHTML}</div>`;
+      // Render dice into this player's assigned dice container
+      this.players[i].diceLoad.innerHTML = `<div class="dice">${diceHTML}</div>`;
 
       for (let j = 0; j < 4; j++) {
         this.players[i].homeDivs[j].appendChild(this.createToken(this.players[i].color));
       }
 
       this.players[i].tokens = document.querySelector(`.${this.players[i].color}-home`).querySelectorAll(".token");
-      this.players[i].diceDiv = document.querySelector(`.dice${i + 1}`).children[0];
+      this.players[i].diceDiv = this.players[i].diceLoad.children[0];
     }
 
     handleName() {
@@ -1320,7 +1321,7 @@
             document.querySelector(".input").innerHTML = `
             <div class="count">
               PLAYER NAMES
-              ${["blue", "yellow", "green", "red"].map(color =>
+              ${["blue", "green", "red", "yellow"].map(color =>
               `<input type="text" class="${color}" placeholder="${color.charAt(0).toUpperCase() + color.slice(1)} Player Name">`
             ).join('')}
               <div class="buttons">
